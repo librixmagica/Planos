@@ -12,10 +12,8 @@
         body {
             height: 100%;
             position: relative;
-            background: url(https://papers.co/wallpaper/papers.co-mh39-space-deep-how-many-stars-nature-36-3840x2400-4k-wallpaper.jpg) center center no-repeat rgba(0,0,0,.7);
+            background: url(background.jpeg) center center no-repeat;
             background-size: cover;
-            padding: 20px;
-            background-blend-mode: multiply;
             margin: 0;
             overflow: hidden;
         }
@@ -23,106 +21,49 @@
         #moon {
             position: absolute;
             display: block;
-            width: 120px;
-            height: 120px;
-            top: 20%;
-            left: 70%;
-            margin-left: -60px;
-            border-radius: 100%;
-            box-shadow: 0 0 45px 0 rgba(255,255,255,.4);
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            left: 50%;
+            margin-left: -125px;
+            margin-top: -125px;
             transition: all .1s linear;
             z-index: 20;
-            overflow: hidden;
-        }
-
-        #moon:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1;
-            border-radius: 100%;
-            box-shadow: inset 0 -10px 10px rgba(0, 0, 0, 0.2);
-            transform: rotate(-30deg);
         }
 
         #moon img {
-            width: 124px;
-            height: 124px;
-            transform: rotate(5deg);
-            margin: -2px;
+            width: 250px;
+            height: 250px;
         }
 
         #earth {
             position: absolute;
             display: block;
-            width: 240px;
-            height: 240px;
-            top: 15%;
+            width: 400px;
+            height: 400px;
+            top: 50%;
             left: 50%;
-            margin-left: -120px;
-            border-radius: 50%;
+            margin-left: -200px;
+            margin-top: -200px;
             transition: all .2s linear;
-            box-shadow: 0 0 30px 0 rgba(255,255,255,.2);
             z-index: 10;
-            overflow: hidden;
-        }
-
-        #earth:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1;
-            border-radius: 100%;
-            box-shadow: inset 0 -20px 20px rgba(0, 0, 0, 0.3);
-            transform: rotate(-30deg);
         }
 
         #earth img {
-            width: 250px;
-            height: 250px;
-            margin: -5px;
-            transform: rotate(-62deg);
+            width: 400px;
+            height: 400px;
         }
 
-        /* Instrucciones para dispositivos móviles */
-        .instructions {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 100;
-        }
-
-        /* Fallback para escritorio - movimiento con mouse */
-        @media (min-width: 768px) {
-            .instructions {
-                display: none;
-            }
-        }
+        /* Ocultar instrucciones */
     </style>
 </head>
 <body>
-    <div class="instructions">
-        📱 Mueve tu dispositivo para ver el efecto parallax
-    </div>
-    
     <div id="moon">
-        <img src="https://toppng.com/uploads/preview/moon-115309715939lc2praf0e.png" alt="Luna">
+        <img src="moon.png" alt="Luna">
     </div>
     
     <div id="earth">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/The_Earth_seen_from_Apollo_17_with_transparent_background.png/2058px-The_Earth_seen_from_Apollo_17_with_transparent_background.png" alt="Tierra">
+        <img src="earth.png" alt="Tierra">
     </div>
 
     <script>
