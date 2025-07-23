@@ -95,7 +95,7 @@
         moonImg.onload = () => onImageLoad('moon.png');
         moonImg.onerror = () => onImageError('moon.png');
         
-        backgroundImg.src = 'background.png';
+        backgroundImg.src = 'background.jpeg';
         earthImg.src = 'earth.png';
         moonImg.src = 'moon.png';
         
@@ -156,7 +156,7 @@
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', deviceOrientationHandler, false);
         }
-        
+        /*
         // Para escritorio - movimiento del mouse (solo si no hay orientación)
         canvas.addEventListener('mousemove', function(e) {
             if (!isUsingDeviceOrientation) {
@@ -174,7 +174,7 @@
                 
                 draw();
             }
-        });
+        });*/
         
         function deviceOrientationHandler(e) {
             isUsingDeviceOrientation = true;
