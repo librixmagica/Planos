@@ -149,29 +149,36 @@
             }
         }
         
+        // Variables de control
+        let isUsingDeviceOrientation = false;
+        
         // Para dispositivos móviles - orientación
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', deviceOrientationHandler, false);
         }
         
-        // Para escritorio - movimiento del mouse
+        // Para escritorio - movimiento del mouse (solo si no hay orientación)
         canvas.addEventListener('mousemove', function(e) {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            
-            const deltaX = (mouseX - centerX) / 10;
-            const deltaY = (mouseY - centerY) / 10;
-            
-            moonOffsetX = deltaX / 4;
-            moonOffsetY = deltaY / 4;
-            earthOffsetX = deltaX / 6;
-            earthOffsetY = deltaY / 6;
-            
-            draw();
+            if (!isUsingDeviceOrientation) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const deltaX = (mouseX - centerX) / 10;
+                const deltaY = (mouseY - centerY) / 10;
+                
+                moonOffsetX = deltaX / 4;
+                moonOffsetY = deltaY / 4;
+                earthOffsetX = deltaX / 6;
+                earthOffsetY = deltaY / 6;
+                
+                draw();
+            }
         });
         
         function deviceOrientationHandler(e) {
+            isUsingDeviceOrientation = true;
+            
             const gamma = e.gamma || 0; // Inclinación izq/der
             const beta = e.beta || 0;   // Inclinación adelante/atrás
             
@@ -182,7 +189,7 @@
             
             draw();
             
-            console.log('Alpha: ' + e.alpha + ', Beta: ' + e.beta + ', Gamma: ' + e.gamma);
+            console.log('Usando orientación - Alpha: ' + e.alpha + ', Beta: ' + e.beta + ', Gamma: ' + e.gamma);
         }
         
         // Solicitar permisos en iOS 13+
@@ -191,12 +198,19 @@
                 DeviceOrientationEvent.requestPermission()
                     .then(response => {
                         if (response == 'granted') {
+                            console.log('Permisos de orientación concedidos');
                             window.addEventListener('deviceorientation', deviceOrientationHandler, false);
                         }
                     })
                     .catch(console.error);
             }, { once: true });
         }
+        
+        // Forzar un dibujo inicial aunque no haya imágenes
+        setTimeout(() => {
+            console.log('Forzando dibujo inicial...');
+            draw();
+        }, 100);
     </script>
 </body>
 </html>
