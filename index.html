@@ -46,37 +46,107 @@
         let imagesLoaded = 0;
         const totalImages = 3;
         
-        function onImageLoad() {
+        function onImageLoad(imageName) {
             imagesLoaded++;
+            console.log(`Imagen cargada: ${imageName} (${imagesLoaded}/${totalImages})`);
             if (imagesLoaded === totalImages) {
+                console.log('Todas las imágenes cargadas, iniciando dibujo');
                 draw();
             }
         }
         
-        backgroundImg.onload = onImageLoad;
-        earthImg.onload = onImageLoad;
-        moonImg.onload = onImageLoad;
+        function onImageError(imageName) {
+            console.error(`Error cargando imagen: ${imageName}`);
+            // Dibujar un placeholder
+            drawPlaceholder();
+        }
+        
+        function drawPlaceholder() {
+            // Dibujar fondo negro
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, 500, 500);
+            
+            // Dibujar círculo para la Tierra
+            ctx.fillStyle = 'blue';
+            ctx.beginPath();
+            ctx.arc(centerX + earthOffsetX, centerY + earthOffsetY, 120, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Dibujar círculo para la Luna
+            ctx.fillStyle = 'gray';
+            ctx.beginPath();
+            ctx.arc(centerX + moonOffsetX, centerY + moonOffsetY, 60, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Texto de ayuda
+            ctx.fillStyle = 'white';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Imágenes no encontradas', centerX, 50);
+            ctx.fillText('Usando placeholders', centerX, 70);
+        }
+        
+        backgroundImg.onload = () => onImageLoad('background.png');
+        backgroundImg.onerror = () => onImageError('background.png');
+        
+        earthImg.onload = () => onImageLoad('earth.png');
+        earthImg.onerror = () => onImageError('earth.png');
+        
+        moonImg.onload = () => onImageLoad('moon.png');
+        moonImg.onerror = () => onImageError('moon.png');
         
         backgroundImg.src = 'background.png';
         earthImg.src = 'earth.png';
         moonImg.src = 'moon.png';
         
+        // Dibujar placeholder inicial
+        setTimeout(() => {
+            if (imagesLoaded === 0) {
+                console.log('No se cargaron imágenes, mostrando placeholder');
+                drawPlaceholder();
+            }
+        }, 1000);
+        
         function draw() {
             // Limpiar canvas
             ctx.clearRect(0, 0, 500, 500);
             
-            // Dibujar fondo
-            ctx.drawImage(backgroundImg, 0, 0, 500, 500);
-            
-            // Dibujar Tierra (240x240, centrada + offset)
-            const earthX = centerX - 120 + earthOffsetX;
-            const earthY = centerY - 120 + earthOffsetY;
-            ctx.drawImage(earthImg, earthX, earthY, 240, 240);
-            
-            // Dibujar Luna (120x120, centrada + offset)
-            const moonX = centerX - 60 + moonOffsetX;
-            const moonY = centerY - 60 + moonOffsetY;
-            ctx.drawImage(moonImg, moonX, moonY, 120, 120);
+            try {
+                // Dibujar fondo
+                if (backgroundImg.complete && backgroundImg.naturalHeight !== 0) {
+                    ctx.drawImage(backgroundImg, 0, 0, 500, 500);
+                } else {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(0, 0, 500, 500);
+                }
+                
+                // Dibujar Tierra (240x240, centrada + offset)
+                const earthX = centerX - 120 + earthOffsetX;
+                const earthY = centerY - 120 + earthOffsetY;
+                if (earthImg.complete && earthImg.naturalHeight !== 0) {
+                    ctx.drawImage(earthImg, earthX, earthY, 240, 240);
+                } else {
+                    ctx.fillStyle = 'blue';
+                    ctx.beginPath();
+                    ctx.arc(centerX + earthOffsetX, centerY + earthOffsetY, 120, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+                
+                // Dibujar Luna (120x120, centrada + offset)
+                const moonX = centerX - 60 + moonOffsetX;
+                const moonY = centerY - 60 + moonOffsetY;
+                if (moonImg.complete && moonImg.naturalHeight !== 0) {
+                    ctx.drawImage(moonImg, moonX, moonY, 120, 120);
+                } else {
+                    ctx.fillStyle = 'gray';
+                    ctx.beginPath();
+                    ctx.arc(centerX + moonOffsetX, centerY + moonOffsetY, 60, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            } catch (error) {
+                console.error('Error al dibujar:', error);
+                drawPlaceholder();
+            }
         }
         
         // Para dispositivos móviles - orientación
