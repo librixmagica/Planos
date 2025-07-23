@@ -3,108 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espacio Parallax</title>
+    <title>Espacio Parallax Canvas</title>
     <style>
-        html {
+        html, body {
             height: 100%;
-        }
-
-        body {
-            height: 100%;
-            position: relative;
-            background: url(background.jpeg) center center no-repeat;
-            background-size: cover;
             margin: 0;
+            padding: 0;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
         }
 
-        #moon {
-            position: absolute;
-            display: block;
-            width: 250px;
-            height: 250px;
-            top: 50%;
-            left: 50%;
-            margin-left: -125px;
-            margin-top: -125px;
-            transition: all .1s linear;
-            z-index: 20;
+        #spaceCanvas {
+            border: 1px solid #333;
         }
-
-        #moon img {
-            width: 250px;
-            height: 250px;
-        }
-
-        #earth {
-            position: absolute;
-            display: block;
-            width: 400px;
-            height: 400px;
-            top: 50%;
-            left: 50%;
-            margin-left: -200px;
-            margin-top: -200px;
-            transition: all .2s linear;
-            z-index: 10;
-        }
-
-        #earth img {
-            width: 400px;
-            height: 400px;
-        }
-
-        /* Ocultar instrucciones */
     </style>
 </head>
 <body>
-    <div id="moon">
-        <img src="moon.png" alt="Luna">
-    </div>
-    
-    <div id="earth">
-        <img src="earth.png" alt="Tierra">
-    </div>
+    <canvas id="spaceCanvas" width="500" height="500"></canvas>
 
     <script>
-        var moon = document.getElementById("moon");
-        var earth = document.getElementById("earth");
-
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Posiciones base (centro del canvas)
+        const centerX = 250;
+        const centerY = 250;
+        
+        // Offsets para el parallax
+        let moonOffsetX = 0;
+        let moonOffsetY = 0;
+        let earthOffsetX = 0;
+        let earthOffsetY = 0;
+        
+        // Cargar imágenes
+        const backgroundImg = new Image();
+        const earthImg = new Image();
+        const moonImg = new Image();
+        
+        let imagesLoaded = 0;
+        const totalImages = 3;
+        
+        function onImageLoad() {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                draw();
+            }
+        }
+        
+        backgroundImg.onload = onImageLoad;
+        earthImg.onload = onImageLoad;
+        moonImg.onload = onImageLoad;
+        
+        backgroundImg.src = 'background.png';
+        earthImg.src = 'earth.png';
+        moonImg.src = 'moon.png';
+        
+        function draw() {
+            // Limpiar canvas
+            ctx.clearRect(0, 0, 500, 500);
+            
+            // Dibujar fondo
+            ctx.drawImage(backgroundImg, 0, 0, 500, 500);
+            
+            // Dibujar Tierra (240x240, centrada + offset)
+            const earthX = centerX - 120 + earthOffsetX;
+            const earthY = centerY - 120 + earthOffsetY;
+            ctx.drawImage(earthImg, earthX, earthY, 240, 240);
+            
+            // Dibujar Luna (120x120, centrada + offset)
+            const moonX = centerX - 60 + moonOffsetX;
+            const moonY = centerY - 60 + moonOffsetY;
+            ctx.drawImage(moonImg, moonX, moonY, 120, 120);
+        }
+        
         // Para dispositivos móviles - orientación
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', deviceOrientationHandler, false);
         }
-
-        // Para escritorio - movimiento del mouse como fallback
-        document.addEventListener('mousemove', function(e) {
-            if (!window.DeviceOrientationEvent) {
-                var centerX = window.innerWidth / 2;
-                var centerY = window.innerHeight / 2;
-                
-                var deltaX = (e.clientX - centerX) / 10;
-                var deltaY = (e.clientY - centerY) / 10;
-                
-                moon.style.transform = "translate(" + deltaX + "px, " + deltaY + "px)";
-                earth.style.transform = "translate(" + (deltaX / 2) + "px, " + (deltaY / 2) + "px)";
-            }
+        
+        // Para escritorio - movimiento del mouse
+        canvas.addEventListener('mousemove', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const deltaX = (mouseX - centerX) / 10;
+            const deltaY = (mouseY - centerY) / 10;
+            
+            moonOffsetX = deltaX / 4;
+            moonOffsetY = deltaY / 4;
+            earthOffsetX = deltaX / 6;
+            earthOffsetY = deltaY / 6;
+            
+            draw();
         });
-
+        
         function deviceOrientationHandler(e) {
-            var gamma = e.gamma || 0; // Inclinación izq/der
-            var beta = e.beta || 0;   // Inclinación adelante/atrás
+            const gamma = e.gamma || 0; // Inclinación izq/der
+            const beta = e.beta || 0;   // Inclinación adelante/atrás
             
-            moon.style.webkitTransform = "translate(" + (gamma / 2) + "px, " + (beta / 2) + "px)";
-            moon.style.transform = "translate(" + (gamma / 2) + "px, " + (beta / 2) + "px)";
+            moonOffsetX = gamma / 4;
+            moonOffsetY = beta / 4;
+            earthOffsetX = gamma / 6;
+            earthOffsetY = beta / 6;
             
-            earth.style.webkitTransform = "translate(" + (gamma / 4) + "px, " + (beta / 4) + "px)";
-            earth.style.transform = "translate(" + (gamma / 4) + "px, " + (beta / 4) + "px)";
+            draw();
             
             console.log('Alpha: ' + e.alpha + ', Beta: ' + e.beta + ', Gamma: ' + e.gamma);
         }
-
+        
         // Solicitar permisos en iOS 13+
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            document.addEventListener('click', function() {
+            canvas.addEventListener('click', function() {
                 DeviceOrientationEvent.requestPermission()
                     .then(response => {
                         if (response == 'granted') {
