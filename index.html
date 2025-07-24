@@ -121,10 +121,10 @@
                 }
                 
                 // Dibujar Tierra (240x240, centrada + offset)
-                const earthX = centerX - 120 + earthOffsetX;
-                const earthY = centerY - 120 + earthOffsetY;
+                const earthX = centerX - 200 + earthOffsetX;
+                const earthY = centerY - 200 + earthOffsetY;
                 if (earthImg.complete && earthImg.naturalHeight !== 0) {
-                    ctx.drawImage(earthImg, earthX, earthY, 240, 240);
+                    ctx.drawImage(earthImg, earthX, earthY, 400, 400);
                 } else {
                     ctx.fillStyle = 'blue';
                     ctx.beginPath();
@@ -133,10 +133,10 @@
                 }
                 
                 // Dibujar Luna (120x120, centrada + offset)
-                const moonX = centerX - 60 + moonOffsetX;
-                const moonY = centerY - 60 + moonOffsetY;
+                const moonX = centerX - 100 + moonOffsetX;
+                const moonY = centerY - 100 + moonOffsetY;
                 if (moonImg.complete && moonImg.naturalHeight !== 0) {
-                    ctx.drawImage(moonImg, moonX, moonY, 120, 120);
+                    ctx.drawImage(moonImg, moonX, moonY, 200, 200);
                 } else {
                     ctx.fillStyle = 'gray';
                     ctx.beginPath();
