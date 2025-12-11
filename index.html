@@ -7,6 +7,14 @@
   <meta name="description" content="Plantilla mínima para ejecutar un archivo SWF con Ruffle usando solo incrustación simple.">
   <!-- Carga Ruffle desde CDN: siempre actualizado -->
   <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+  <script>
+    window.RufflePlayer = window.RufflePlayer || {};
+    window.RufflePlayer.config = {
+      "autoplay": "on",
+      "splashScreen": false,
+      "unmuteOverlay": "hidden"
+    };
+  </script>
   <style>
     :root { color-scheme: light dark; }
     body {
