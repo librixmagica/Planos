@@ -27,6 +27,17 @@
             width: 100%;
         }
         
+        input {
+            width: 100%;
+            padding: 20px;
+            background: #111;
+            color: #fff;
+            border: 1px solid #333;
+            font-family: monospace;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
         button {
             width: 100%;
             padding: 20px;
@@ -36,13 +47,14 @@
             font-family: monospace;
             font-size: 16px;
             cursor: pointer;
+            margin-bottom: 10px;
         }
         
         button:active {
             background: #222;
         }
         
-        #data {
+        #output {
             margin-top: 20px;
             padding: 20px;
             border: 1px solid #333;
@@ -50,22 +62,29 @@
             display: none;
         }
         
-        #data.show {
+        #output.show {
             display: block;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <button id="btn">SCAN</button>
-        <div id="data"></div>
+        <button id="scan">SCAN</button>
+        <input type="text" id="text" placeholder="text to write">
+        <button id="write">WRITE</button>
+        <button id="erase">ERASE</button>
+        <div id="output"></div>
     </div>
 
     <script>
-        const btn = document.getElementById('btn');
-        const data = document.getElementById('data');
+        const scanBtn = document.getElementById('scan');
+        const writeBtn = document.getElementById('write');
+        const eraseBtn = document.getElementById('erase');
+        const textInput = document.getElementById('text');
+        const output = document.getElementById('output');
 
-        btn.onclick = async () => {
+        // SCAN
+        scanBtn.onclick = async () => {
             if ('NDEFReader' in window) {
                 const reader = new NDEFReader();
                 await reader.scan();
@@ -78,9 +97,47 @@
                         result += decoder.decode(r.data) + '\n';
                     });
                     
-                    data.textContent = result;
-                    data.classList.add('show');
+                    output.textContent = result;
+                    output.classList.add('show');
                 };
+            }
+        };
+
+        // WRITE
+        writeBtn.onclick = async () => {
+            if ('NDEFReader' in window) {
+                const writer = new NDEFReader();
+                
+                try {
+                    await writer.write({
+                        records: [{ recordType: "text", data: textInput.value }]
+                    });
+                    
+                    output.textContent = 'WRITTEN';
+                    output.classList.add('show');
+                } catch (e) {
+                    output.textContent = 'ERROR';
+                    output.classList.add('show');
+                }
+            }
+        };
+
+        // ERASE
+        eraseBtn.onclick = async () => {
+            if ('NDEFReader' in window) {
+                const writer = new NDEFReader();
+                
+                try {
+                    await writer.write({
+                        records: [{ recordType: "text", data: "" }]
+                    });
+                    
+                    output.textContent = 'ERASED';
+                    output.classList.add('show');
+                } catch (e) {
+                    output.textContent = 'ERROR';
+                    output.classList.add('show');
+                }
             }
         };
     </script>
