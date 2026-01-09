@@ -1,60 +1,88 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ruffle Player</title>
-  <meta name="description" content="Plantilla mínima para ejecutar un archivo SWF con Ruffle usando solo incrustación simple.">
-  <!-- Carga Ruffle desde CDN: siempre actualizado -->
-  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-  <script>
-    window.RufflePlayer = window.RufflePlayer || {};
-    window.RufflePlayer.config = {
-      "autoplay": "on",
-      "splashScreen": false,
-      "unmuteOverlay": "hidden"
-    };
-  </script>
-  <style>
-    :root { color-scheme: light dark; }
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
-      margin: 0; padding: 2rem; display: grid; gap: 1rem;
-      background: canvas; color: CanvasText;
-    }
-    h1 { font-size: 1.4rem; margin: 0 0 .25rem 0; }
-    .note { font-size: .95rem; opacity: .85; }
-    .player-wrapper {
-      border: 0px solid rgba(128,128,128,.4);
-      border-radius: 0px; overflow: hidden;
-      background: #111;
-      width: 100%; height: 400px;
-      max-width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    object {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        button {
+            width: 100%;
+            padding: 20px;
+            background: #111;
+            color: #fff;
+            border: 1px solid #333;
+            font-family: monospace;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        button:active {
+            background: #222;
+        }
+        
+        #data {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #333;
+            word-wrap: break-word;
+            display: none;
+        }
+        
+        #data.show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Magic Player〽️</h1>
-    <p class="note">Mi archivo</p>
-  </header>
-
-  <main>
-    <div class="player-wrapper">
-      <!-- Ruffle reemplaza automáticamente este <object> -->
-      <object data="mi-archivo.swf" type="application/x-shockwave-flash" width="400" height="400">
-        <param name="movie" value="mi-archivo.swf">
-        <param name="quality" value="high">
-        <p>Tu navegador no puede reproducir este contenido. Asegúrate de que Ruffle se haya cargado correctamente.</p>
-      </object>
+    <div class="container">
+        <button id="btn">SCAN</button>
+        <div id="data"></div>
     </div>
-  </main>
+
+    <script>
+        const btn = document.getElementById('btn');
+        const data = document.getElementById('data');
+
+        btn.onclick = async () => {
+            if ('NDEFReader' in window) {
+                const reader = new NDEFReader();
+                await reader.scan();
+                
+                reader.onreading = e => {
+                    const decoder = new TextDecoder();
+                    let result = '';
+                    
+                    e.message.records.forEach(r => {
+                        result += decoder.decode(r.data) + '\n';
+                    });
+                    
+                    data.textContent = result;
+                    data.classList.add('show');
+                };
+            }
+        };
+    </script>
 </body>
 </html>
