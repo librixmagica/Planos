@@ -60,11 +60,6 @@
             padding: 20px;
             border: 1px solid #333;
             word-wrap: break-word;
-            display: none;
-        }
-        
-        #output.show {
-            display: block;
         }
         
         canvas {
@@ -77,7 +72,7 @@
         <video id="video"></video>
         <button id="scan">SCAN</button>
         <button id="stop">STOP</button>
-        <div id="output"></div>
+        <div id="output">-</div>
         <canvas id="canvas"></canvas>
     </div>
 
@@ -104,7 +99,6 @@
                 tick();
             } catch (e) {
                 output.textContent = 'ERROR: ' + e.message;
-                output.classList.add('show');
             }
         };
 
@@ -129,7 +123,6 @@
                 
                 if (code) {
                     output.textContent = code.data;
-                    output.classList.add('show');
                     scanning = false;
                     stream.getTracks().forEach(track => track.stop());
                     video.classList.remove('show');
