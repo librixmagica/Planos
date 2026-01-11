@@ -69,18 +69,18 @@
 </head>
 <body>
     <div class="container">
-        <video id="video"></video>
+        <video id="video" autoplay playsinline></video>
         <button id="scan">SCAN</button>
         <button id="stop">STOP</button>
         <div id="output">-</div>
         <canvas id="canvas"></canvas>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const scanBtn = document.getElementById('scan');
         const stopBtn = document.getElementById('stop');
         const output = document.getElementById('output');
@@ -88,15 +88,21 @@
         let scanning = false;
 
         scanBtn.onclick = async () => {
+            output.textContent = 'STARTING...';
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
                 });
                 video.srcObject = stream;
-                video.play();
+                await video.play();
                 video.classList.add('show');
                 scanning = true;
-                tick();
+                output.textContent = 'SCANNING...';
+                requestAnimationFrame(tick);
             } catch (e) {
                 output.textContent = 'ERROR: ' + e.message;
             }
@@ -107,6 +113,7 @@
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 video.classList.remove('show');
+                output.textContent = 'STOPPED';
             }
         };
 
@@ -119,7 +126,9 @@
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
                 
                 if (code) {
                     output.textContent = code.data;
