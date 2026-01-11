@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        #video {
+            width: 300px;
+            height: 300px;
+            border: 1px solid #333;
+            object-fit: cover;
+            display: none;
+        }
+        
+        #video.show {
+            display: block;
+        }
+        
+        button {
+            width: 100%;
+            padding: 20px;
+            background: #111;
+            color: #fff;
+            border: 1px solid #333;
+            font-family: monospace;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        button:active {
+            background: #222;
+        }
+        
+        #output {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #333;
+            word-wrap: break-word;
+            display: none;
+        }
+        
+        #output.show {
+            display: block;
+        }
+        
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <video id="video"></video>
+        <button id="scan">SCAN</button>
+        <button id="stop">STOP</button>
+        <div id="output"></div>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const scanBtn = document.getElementById('scan');
+        const stopBtn = document.getElementById('stop');
+        const output = document.getElementById('output');
+        let stream = null;
+        let scanning = false;
+
+        scanBtn.onclick = async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                video.srcObject = stream;
+                video.play();
+                video.classList.add('show');
+                scanning = true;
+                tick();
+            } catch (e) {
+                output.textContent = 'ERROR: ' + e.message;
+                output.classList.add('show');
+            }
+        };
+
+        stopBtn.onclick = () => {
+            scanning = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.classList.remove('show');
+            }
+        };
+
+        function tick() {
+            if (!scanning) return;
+
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    output.textContent = code.data;
+                    output.classList.add('show');
+                    scanning = false;
+                    stream.getTracks().forEach(track => track.stop());
+                    video.classList.remove('show');
+                    return;
+                }
+            }
+            
+            requestAnimationFrame(tick);
+        }
+    </script>
+</body>
+</html>
