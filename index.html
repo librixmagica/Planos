@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR</title>
+    <title>SCAN</title>
     <style>
         * {
             margin: 0;
@@ -27,32 +27,40 @@
             width: 100%;
         }
         
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 20px;
+            background: #111;
+            color: #fff;
+            border: 1px solid #333;
+            font-size: 32px;
+            cursor: pointer;
+        }
+        
+        button:active {
+            background: #222;
+        }
+        
+        button.hidden {
+            display: none;
+        }
+        
         #video {
             width: 200px;
             height: 200px;
             border: 1px solid #333;
             object-fit: cover;
             display: none;
+            margin-top: 10px;
         }
         
         #video.show {
             display: block;
-        }
-        
-        button {
-            width: 100%;
-            padding: 20px;
-            background: #111;
-            color: #fff;
-            border: 1px solid #333;
-            font-family: monospace;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        button:active {
-            background: #222;
         }
         
         #output {
@@ -69,25 +77,51 @@
 </head>
 <body>
     <div class="container">
+        <div class="buttons">
+            <button id="nfcBtn" class="hidden">✨</button>
+            <button id="qrBtn">🍎</button>
+        </div>
         <video id="video" autoplay playsinline></video>
-        <button id="scan">SCAN</button>
-        <button id="stop">STOP</button>
         <div id="output">-</div>
         <canvas id="canvas"></canvas>
     </div>
 
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <script>
+        const nfcBtn = document.getElementById('nfcBtn');
+        const qrBtn = document.getElementById('qrBtn');
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const scanBtn = document.getElementById('scan');
-        const stopBtn = document.getElementById('stop');
         const output = document.getElementById('output');
         let stream = null;
         let scanning = false;
 
-        scanBtn.onclick = async () => {
+        // Detectar plataforma y mostrar botones
+        if ('NDEFReader' in window) {
+            nfcBtn.classList.remove('hidden');
+        }
+
+        // NFC SCAN
+        nfcBtn.onclick = async () => {
+            const reader = new NDEFReader();
+            await reader.scan();
+            output.textContent = 'NFC READY...';
+            
+            reader.onreading = e => {
+                const decoder = new TextDecoder();
+                let result = '';
+                
+                e.message.records.forEach(r => {
+                    result += decoder.decode(r.data) + '\n';
+                });
+                
+                output.textContent = result;
+            };
+        };
+
+        // QR SCAN
+        qrBtn.onclick = async () => {
             output.textContent = 'STARTING...';
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
@@ -105,15 +139,6 @@
                 requestAnimationFrame(tick);
             } catch (e) {
                 output.textContent = 'ERROR: ' + e.message;
-            }
-        };
-
-        stopBtn.onclick = () => {
-            scanning = false;
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                video.classList.remove('show');
-                output.textContent = 'STOPPED';
             }
         };
 
