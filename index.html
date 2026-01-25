@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Scanner</title>
+    <script src="https://unpkg.com/@zxing/library@0.19.1"></script>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        #video { width: 150px; height: 150px; border: 1px solid #333; object-fit: cover; background: #111; }
+        button { background: #000; color: #0f0; border: 1px solid #0f0; padding: 10px 20px; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
+        button:active { background: #0f0; color: #000; }
+        #result { margin-top: 15px; max-width: 80%; text-align: center; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <video id="video"></video>
+    <button id="scanBtn">SCAN</button>
+    <div id="result">ESPERANDO...</div>
+
+    <script>
+        const codeReader = new ZXing.BrowserDatamatrixCodeReader();
+        const videoElement = document.getElementById('video');
+        const resultElement = document.getElementById('result');
+        const scanBtn = document.getElementById('scanBtn');
+
+        scanBtn.onclick = () => {
+            resultElement.innerText = "BUSCANDO...";
+            
+            // Inicia la cámara y busca el código
+            codeReader.decodeFromVideoDevice(undefined, 'video', (result, err) => {
+                if (result) {
+                    // Muestra solo el texto plano
+                    resultElement.innerText = "DATA: " + result.text;
+                    
+                    // Detiene la cámara tras el primer éxito para ahorrar recursos
+                    codeReader.reset();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
