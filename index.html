@@ -19,7 +19,7 @@
     <div id="result">ESPERANDO...</div>
 
     <script>
-        const codeReader = new ZXing.BrowserMultiFormatReader();
+        const codeReader = new ZXing.BrowserDataMatrixReader();
         const videoElement = document.getElementById('video');
         const resultElement = document.getElementById('result');
         const scanBtn = document.getElementById('scanBtn');
